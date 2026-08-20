@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevOps War Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --surface: #121820;
+      --surface-2: #171f29;
+      --surface-3: #0f151c;
+      --border: #28313d;
+      --border-strong: #3a4655;
+      --text: #eef3f8;
+      --muted: #97a3b2;
+      --subtle: #6f7b8a;
+      --red: #ff5c5c;
+      --amber: #f0b84f;
+      --green: #4fd17a;
+      --blue: #65a8ff;
+      --teal: #45d6c0;
+      --violet: #b088ff;
+      --shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      padding-bottom: 56px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(101, 168, 255, 0.08), transparent 280px),
+        linear-gradient(90deg, rgba(79, 209, 122, 0.04), transparent 42%, rgba(240, 184, 79, 0.04));
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 72px;
+      display: grid;
+      grid-template-columns: minmax(230px, 1fr) auto minmax(260px, 1fr);
+      align-items: center;
+      gap: 22px;
+      padding: 14px 28px;
+      background: rgba(11, 15, 20, 0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(101, 168, 255, 0.38);
+      border-radius: 8px;
+      background: rgba(101, 168, 255, 0.12);
+      color: var(--blue);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 800;
+    }
+
+    .brand-title { font-size: 17px; font-weight: 800; }
+    .brand-subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-3);
+    }
+
+    .tab {
+      min-height: 34px;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--text);
+      background: var(--surface-2);
+      box-shadow: inset 0 0 0 1px var(--border-strong);
+    }
+
+    .right-status {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .live-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      padding: 6px 10px;
+      border: 1px solid rgba(79, 209, 122, 0.3);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(79, 209, 122, 0.08);
+      font-weight: 800;
+    }
+
+    .live-state.active {
+      border-color: rgba(255, 92, 92, 0.36);
+      color: var(--red);
+      background: rgba(255, 92, 92, 0.1);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .live-state.active .dot { animation: pulse 1.35s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 92, 92, 0.45); }
+      50% { box-shadow: 0 0 0 8px rgba(255, 92, 92, 0); }
+    }
+
+    main {
+      position: relative;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 5px; font-size: 28px; letter-spacing: 0; }
+    .lede { margin: 0; color: var(--muted); }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr 0.9fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      min-height: 104px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.86);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      margin-top: 10px;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .metric-note {
+      margin-top: 4px;
+      color: var(--subtle);
+      font-size: 13px;
+    }
+
+    .incident-list { display: grid; gap: 12px; }
+
+    .incident-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--amber);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.92);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .incident-card:hover {
+      transform: translateY(-1px);
+      border-color: var(--border-strong);
+      background: var(--surface-2);
+    }
+
+    .incident-card.critical { border-left-color: var(--red); }
+    .incident-card.high { border-left-color: var(--amber); }
+    .incident-card.low { border-left-color: var(--green); }
+
+    .incident-title {
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge, .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 25px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-3);
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.critical { color: var(--red); border-color: rgba(255, 92, 92, 0.42); background: rgba(255, 92, 92, 0.09); }
+    .badge.high { color: var(--amber); border-color: rgba(240, 184, 79, 0.4); background: rgba(240, 184, 79, 0.08); }
+    .badge.low { color: var(--green); border-color: rgba(79, 209, 122, 0.38); background: rgba(79, 209, 122, 0.08); }
+    .pill.hit { color: var(--green); border-color: rgba(79, 209, 122, 0.38); }
+
+    .button {
+      align-self: center;
+      min-width: 112px;
+      min-height: 38px;
+      border: 1px solid rgba(101, 168, 255, 0.5);
+      border-radius: 6px;
+      background: rgba(101, 168, 255, 0.11);
+      color: var(--blue);
+      cursor: pointer;
+      font: 800 13px Inter, system-ui, sans-serif;
+    }
+
+    .button:hover { background: rgba(101, 168, 255, 0.18); }
+
+    .empty-state, .error-state, .loading-state {
+      min-height: 360px;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.54);
+    }
+
+    .empty-state strong, .error-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 20px;
+    }
+
+    .error-state strong { color: var(--red); }
+
+    .report-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      font: 700 13px Inter, system-ui, sans-serif;
+    }
+
+    .back-button:hover { color: var(--blue); border-color: rgba(101, 168, 255, 0.45); }
+
+    .report-layout {
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      position: sticky;
+      top: 96px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-title { margin-bottom: 3px; font-size: 17px; font-weight: 800; }
+    .panel-subtitle {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .kv { display: grid; gap: 14px; }
+    .kv-item { display: grid; gap: 4px; }
+    .label {
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .value {
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .source-box {
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-3);
+      color: var(--subtle);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .source-box.ok {
+      color: var(--green);
+      border-color: rgba(79, 209, 122, 0.35);
+      background: rgba(79, 209, 122, 0.08);
+    }
+
+    .section-stack { display: grid; gap: 14px; }
+
+    .section-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--subtle);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .section-card.summary { border-left-color: var(--blue); }
+    .section-card.root_cause { border-left-color: var(--red); }
+    .section-card.evidence { border-left-color: var(--amber); }
+    .section-card.third_party { border-left-color: var(--teal); }
+    .section-card.actions { border-left-color: var(--green); }
+    .section-card.confidence { border-left-color: var(--violet); }
+
+    .section-card h3 {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .section-card p, .section-card li {
+      margin: 0;
+      color: #d5dde7;
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .section-card ol { margin: 0; padding-left: 20px; }
+    .section-card li + li { margin-top: 9px; }
+
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-3);
+      font-weight: 800;
+    }
+
+    .confidence-badge .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--amber);
+    }
+
+    .confidence-badge.high .indicator { background: var(--green); }
+    .confidence-badge.low .indicator { background: var(--red); }
+
+    .timeline-board {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .timeline-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .timeline-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .timeline-title h2 { margin: 0; font-size: 18px; }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 0;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 8px;
+      bottom: 8px;
+      width: 1px;
+      background: var(--border-strong);
+    }
+
+    .timeline-event {
+      position: relative;
+      display: grid;
+      grid-template-columns: 92px 130px minmax(0, 1fr);
+      gap: 12px;
+      min-height: 58px;
+      padding: 0 0 16px;
+    }
+
+    .timeline-event:last-child { padding-bottom: 0; }
+
+    .timeline-event::before {
+      content: "";
+      position: absolute;
+      left: -17px;
+      top: 5px;
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      border: 2px solid var(--bg);
+      background: var(--blue);
+      box-shadow: 0 0 0 1px var(--border-strong);
+    }
+
+    .timeline-event.critical::before { background: var(--red); }
+    .timeline-event.warning::before { background: var(--amber); }
+    .timeline-event.deploy::before { background: var(--violet); }
+    .timeline-event.success::before { background: var(--green); }
+
+    .timeline-time {
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .timeline-source {
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .timeline-label { margin-bottom: 3px; font-weight: 800; }
+    .timeline-detail { color: var(--muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .source-card {
+      min-height: 170px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      background: rgba(18, 24, 32, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .source-card.error { border-left-color: var(--red); }
+
+    .source-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .source-icon { font-size: 26px; line-height: 1; }
+    .source-name { font-size: 18px; font-weight: 800; }
+
+    .source-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 27px;
+      padding: 5px 9px;
+      border: 1px solid rgba(79, 209, 122, 0.34);
+      border-radius: 999px;
+      background: rgba(79, 209, 122, 0.08);
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .source-status.error {
+      color: var(--red);
+      border-color: rgba(255, 92, 92, 0.34);
+      background: rgba(255, 92, 92, 0.08);
+    }
+
+    .last-updated {
+      margin-top: 14px;
+      color: var(--muted);
+      text-align: right;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+    }
+
+    .refresh-indicator.spinning::before {
+      content: "refreshing ";
+      color: var(--blue);
+    }
+
+    .footer {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 20;
+      padding: 13px 20px;
+      border-top: 1px solid var(--border);
+      background: rgba(11, 15, 20, 0.94);
+      color: var(--muted);
+      text-align: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+    }
+
+    @media (max-width: 1100px) {
+      .topbar { grid-template-columns: 1fr; justify-items: start; }
+      .right-status { justify-self: start; }
+      .overview-grid, .sources-grid { grid-template-columns: 1fr; }
+      .report-layout { grid-template-columns: 1fr; }
+      .panel { position: static; }
+    }
+
+    @media (max-width: 720px) {
+      main { padding: 20px 14px; }
+      .topbar { padding: 14px; }
+      .tabs { width: 100%; overflow-x: auto; }
+      .page-head, .report-header { align-items: flex-start; flex-direction: column; }
+      .incident-card { grid-template-columns: 1fr; }
+      .button { width: 100%; }
+      .timeline-event { grid-template-columns: 1fr; gap: 4px; }
+      .timeline-time { white-space: normal; }
+      .source-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="brand">
+      <div class="brand-mark">DW</div>
+      <div>
+        <div class="brand-title">DevOps War Room</div>
+        <div class="brand-subtitle">Autonomous incident commander</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="feed">LIVE FEED</button>
+      <button class="tab" data-view="timeline">TIMELINE</button>
+      <button class="tab" data-view="report">REPORT</button>
+      <button class="tab" data-view="sources">SOURCES</button>
+    </div>
+    <div class="right-status">
+      <span id="liveState" class="live-state"><span class="dot"></span><span id="liveLabel">ALL CLEAR</span></span>
+      <span id="utcClock">--:--:-- UTC</span>
+    </div>
+  </nav>
+
+  <main>
+    <section id="feedView" class="view active">
+      <div class="page-head">
+        <div>
+          <h1>Incident Command Center</h1>
+          <p class="lede">Live PagerDuty investigations, source coverage, and AI-generated incident reports.</p>
+        </div>
+      </div>
+      <div class="overview-grid">
+        <div class="metric">
+          <div class="metric-label">Active incidents</div>
+          <div class="metric-value" id="activeCount">0</div>
+          <div class="metric-note">Deduplicated by incident id</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Latest report</div>
+          <div class="metric-value" id="latestAge">None</div>
+          <div class="metric-note">Auto-refreshes every 15 seconds</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Source coverage</div>
+          <div class="metric-value" id="coverageCount">0/6</div>
+          <div class="metric-note">PagerDuty, GitHub, Sentry, Slack, Grafana, Statuspage</div>
+        </div>
+      </div>
+      <div id="incidentList" class="incident-list">
+        <div class="loading-state">Loading incidents...</div>
+      </div>
+    </section>
+
+    <section id="timelineView" class="view">
+      <div class="page-head">
+        <div>
+          <h1>Incident Timeline</h1>
+          <p class="lede">Correlated deploys, alerts, errors, Slack updates, and War Room report generation.</p>
+        </div>
+      </div>
+      <div id="timelineContent" class="timeline-board">
+        <div class="loading-state">Loading timeline...</div>
+      </div>
+    </section>
+
+    <section id="reportView" class="view">
+      <div class="report-header">
+        <button class="back-button" onclick="setView('feed')">Back to Live Feed</button>
+      </div>
+      <div id="reportContent">
+        <div class="empty-state">
+          <strong>Select an incident</strong>
+          <span>Choose an incident from the live feed to inspect the full report.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="sourcesView" class="view">
+      <div class="page-head">
+        <div>
+          <h1>Connected Sources</h1>
+          <p class="lede">Coral source connectivity and table availability for the investigation agent.</p>
+        </div>
+      </div>
+      <div id="sourcesGrid" class="sources-grid">
+        <div class="loading-state" style="grid-column: 1/-1;">Loading sources...</div>
+      </div>
+      <div class="last-updated">
+        <span class="refresh-indicator" id="refreshIndicator"></span>
+        Last updated: <span id="lastUpdated">--</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Coral SQL + PagerDuty + GitHub + Sentry + Slack + Grafana + Statuspage
+  </footer>
+
+  <script>
+    const state = { incidents: [], selected: null, sources: [] };
+    const sourceNames = ["PagerDuty", "GitHub", "Sentry", "Slack", "Grafana", "Statuspage"];
+    let sourcesRefreshInterval = null;
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+
+    function setView(name) {
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === name));
+      document.querySelectorAll(".view").forEach(view => view.classList.remove("active"));
+      document.getElementById(`${name}View`).classList.add("active");
+      if (name === "timeline") renderTimelineBoard();
+      if (name === "sources") startSourcesRefresh();
+      else stopSourcesRefresh();
+    }
+
+    function startSourcesRefresh() {
+      if (sourcesRefreshInterval) return;
+      loadSources();
+      sourcesRefreshInterval = setInterval(loadSources, 10000);
+    }
+
+    function stopSourcesRefresh() {
+      if (!sourcesRefreshInterval) return;
+      clearInterval(sourcesRefreshInterval);
+      sourcesRefreshInterval = null;
+    }
+
+    function urgencyClass(urgency) {
+      const value = String(urgency || "low").toLowerCase();
+      if (value.includes("critical")) return "critical";
+      if (value.includes("high")) return "high";
+      return "low";
+    }
+
+    function timeAgo(value) {
+      if (!value) return "unknown";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "unknown";
+      const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+      if (seconds < 60) return `${seconds}s ago`;
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      return `${Math.floor(hours / 24)}d ago`;
+    }
+
+    function renderLiveState() {
+      const active = state.incidents.length > 0;
+      const liveState = document.getElementById("liveState");
+      liveState.classList.toggle("active", active);
+      document.getElementById("liveLabel").textContent = active ? "INCIDENT ACTIVE" : "ALL CLEAR";
+    }
+
+    function renderOverview() {
+      const latest = state.incidents[0];
+      const coverage = latest ? new Set(latest.sources_hit || []).size : 0;
+      document.getElementById("activeCount").textContent = state.incidents.length;
+      document.getElementById("latestAge").textContent = latest ? timeAgo(latest.generated_at) : "None";
+      document.getElementById("coverageCount").textContent = `${coverage}/6`;
+    }
+
+    function renderIncidents() {
+      const container = document.getElementById("incidentList");
+      renderLiveState();
+      renderOverview();
+      if (!state.incidents.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>All systems operational</strong>
+            <span>No active incident reports are present.</span>
+          </div>`;
+        renderTimelineBoard();
+        return;
+      }
+
+      container.innerHTML = state.incidents.map(incident => {
+        const urgency = urgencyClass(incident.urgency);
+        const sources = ["GitHub", "Sentry", "Slack", "Grafana", "Statuspage"].map(name => {
+          const hit = (incident.sources_hit || []).includes(name);
+          return `<span class="pill ${hit ? "hit" : ""}">${name} ${hit ? "ok" : "pending"}</span>`;
+        }).join("");
+        return `
+          <article class="incident-card ${urgency}" onclick="loadIncident('${escapeHtml(incident.id)}')">
+            <div>
+              <div class="incident-title">${escapeHtml(incident.title)}</div>
+              <div class="meta-row">
+                <span class="badge ${urgency}">${escapeHtml((incident.urgency || "low").toUpperCase())}</span>
+                <span>${timeAgo(incident.started_at || incident.generated_at)}</span>
+                ${sources}
+              </div>
+            </div>
+            <button class="button" onclick="event.stopPropagation(); loadIncident('${escapeHtml(incident.id)}')">Open Report</button>
+          </article>`;
+      }).join("");
+      renderTimelineBoard();
+    }
+
+    function renderTimeline(events) {
+      if (!events || !events.length) return '<div class="empty-state"><strong>No timeline yet</strong><span>Timeline data appears after a report is generated.</span></div>';
+      return `
+        <div class="timeline">
+          ${events.map(event => `
+            <div class="timeline-event ${escapeHtml(event.severity || "info")}">
+              <div class="timeline-time">${escapeHtml(event.time || "")}</div>
+              <div class="timeline-source">${escapeHtml(event.source || "")}</div>
+              <div>
+                <div class="timeline-label">${escapeHtml(event.label || "")}</div>
+                <div class="timeline-detail">${escapeHtml(event.detail || "")}</div>
+              </div>
+            </div>`).join("")}
+        </div>`;
+    }
+
+    function renderTimelineBoard() {
+      const container = document.getElementById("timelineContent");
+      if (!container) return;
+      if (!state.incidents.length) {
+        container.innerHTML = '<div class="empty-state"><strong>No timeline available</strong><span>Run a scenario or wait for the next incident report.</span></div>';
+        return;
+      }
+      container.innerHTML = state.incidents.map(incident => `
+        <article class="timeline-card">
+          <div class="timeline-title">
+            <h2>${escapeHtml(incident.title)}</h2>
+            <button class="button" onclick="loadIncident('${escapeHtml(incident.id)}')">Open Report</button>
+          </div>
+          ${renderTimeline(incident.timeline || [])}
+        </article>`).join("");
+    }
+
+    function renderSection(key, title, content) {
+      const text = String(content || "").trim();
+      if (key === "actions") {
+        const items = text.split(/\n+/).map(line => line.replace(/^\d+\.\s*/, "").trim()).filter(Boolean);
+        const safeItems = items.length ? items : ["No actions specified."];
+        return `<article class="section-card ${key}"><h3>${title}</h3><ol>${safeItems.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ol></article>`;
+      }
+      if (key === "confidence") {
+        const confidenceText = text.split("\n")[0].trim() || "Unknown";
+        const confidenceLevel = confidenceText.toLowerCase().includes("high") ? "high" : confidenceText.toLowerCase().includes("low") ? "low" : "medium";
+        return `<article class="section-card ${key}"><h3>${title}</h3><div class="confidence-badge ${confidenceLevel}"><span class="indicator"></span>${escapeHtml(confidenceText)}</div></article>`;
+      }
+      return `<article class="section-card ${key}"><h3>${title}</h3><p>${escapeHtml(text || "No details available.").replace(/\n/g, "<br>")}</p></article>`;
+    }
+
+    function renderReport(incident) {
+      const sources = sourceNames.map(name => {
+        const ok = (incident.sources_hit || []).includes(name);
+        return `<div class="source-box ${ok ? "ok" : ""}">${name} ${ok ? "ok" : "pending"}</div>`;
+      }).join("");
+      const sections = incident.sections || {};
+      document.getElementById("reportContent").innerHTML = `
+        <div class="report-layout">
+          <aside class="panel">
+            <div class="panel-title">Incident Details</div>
+            <div class="panel-subtitle">${escapeHtml(incident.id)}</div>
+            <div class="kv">
+              <div class="kv-item"><span class="label">Title</span><span class="value">${escapeHtml(incident.title)}</span></div>
+              <div class="kv-item"><span class="label">Service</span><span class="value">${escapeHtml(incident.service || "unknown")}</span></div>
+              <div class="kv-item"><span class="label">Urgency</span><span class="value"><span class="badge ${urgencyClass(incident.urgency)}">${escapeHtml((incident.urgency || "unknown").toUpperCase())}</span></span></div>
+              <div class="kv-item"><span class="label">Started</span><span class="value">${escapeHtml(incident.started_at || "unknown")}</span></div>
+              <div class="kv-item"><span class="label">Generated</span><span class="value">${escapeHtml(incident.generated_at || "unknown")}</span></div>
+            </div>
+            <div class="source-grid">${sources}</div>
+          </aside>
+          <div class="section-stack">
+            <article class="timeline-card">
+              <div class="timeline-title"><h2>Incident Timeline</h2></div>
+              ${renderTimeline(incident.timeline || [])}
+            </article>
+            ${renderSection("summary", "Incident Summary", sections.summary)}
+            ${renderSection("root_cause", "Root Cause Analysis", sections.root_cause)}
+            ${renderSection("evidence", "Corroborating Evidence", sections.evidence)}
+            ${renderSection("third_party", "Third-Party Status", sections.third_party)}
+            ${renderSection("actions", "Recommended Actions", sections.actions)}
+            ${renderSection("confidence", "Confidence Level", sections.confidence)}
+          </div>
+        </div>`;
+    }
+
+    async function loadIncident(id) {
+      try {
+        document.getElementById("reportContent").innerHTML = '<div class="loading-state">Loading report...</div>';
+        const response = await fetch(`/api/incidents/${encodeURIComponent(id)}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        state.selected = await response.json();
+        renderReport(state.selected);
+        setView("report");
+      } catch (error) {
+        document.getElementById("reportContent").innerHTML = `
+          <div class="error-state">
+            <strong>Failed to load incident</strong>
+            <span>${escapeHtml(error.message)}</span>
+          </div>`;
+        setView("report");
+      }
+    }
+
+    function renderSources() {
+      const grid = document.getElementById("sourcesGrid");
+      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
+      if (!state.sources.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><strong>No source data</strong><span>Source health will appear after the Coral check completes.</span></div>';
+        return;
+      }
+      grid.innerHTML = state.sources.map(source => {
+        const isConnected = source.status === "connected";
+        return `
+          <article class="source-card ${isConnected ? "" : "error"}">
+            <div class="source-head">
+              <div>
+                <div class="source-icon">${escapeHtml(source.icon)}</div>
+                <div class="source-name">${escapeHtml(source.name)}</div>
+              </div>
+              <div class="source-status ${isConnected ? "" : "error"}"><span class="dot"></span>${isConnected ? "Connected" : "Error"}</div>
+            </div>
+            <div class="kv">
+              <div class="kv-item"><span class="label">Tables visible</span><span class="value">${escapeHtml(source.rows_returned)}</span></div>
+              <div class="kv-item"><span class="label">Last check</span><span class="value">${timeAgo(source.last_queried)}</span></div>
+            </div>
+          </article>`;
+      }).join("");
+    }
+
+    async function loadIncidents() {
+      try {
+        const response = await fetch("/api/incidents");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        state.incidents = await response.json();
+        renderIncidents();
+      } catch (error) {
+        document.getElementById("incidentList").innerHTML = `
+          <div class="error-state">
+            <strong>Failed to load incidents</strong>
+            <span>${escapeHtml(error.message)}</span>
+          </div>`;
+        renderLiveState();
+      }
+    }
+
+    async function loadSources() {
+      const indicator = document.getElementById("refreshIndicator");
+      indicator.classList.add("spinning");
+      try {
+        const response = await fetch("/api/sources");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        state.sources = await response.json();
+        renderSources();
+      } catch (error) {
+        document.getElementById("sourcesGrid").innerHTML = `
+          <div class="error-state" style="grid-column: 1/-1;">
+            <strong>Failed to load sources</strong>
+            <span>${escapeHtml(error.message)}</span>
+          </div>`;
+      } finally {
+        setTimeout(() => indicator.classList.remove("spinning"), 500);
+      }
+    }
+
+    function tickClock() {
+      document.getElementById("utcClock").textContent = new Date().toISOString().slice(11, 19) + " UTC";
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => setView(tab.dataset.view));
+    });
+
+    tickClock();
+    setInterval(tickClock, 1000);
+    loadIncidents();
+    setInterval(loadIncidents, 15000);
+    loadSources();
+  </script>
+</body>
+</html>

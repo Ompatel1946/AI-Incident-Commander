@@ -1,0 +1,11 @@
+curl -X POST https://events.pagerduty.com/v2/enqueue \
+  -H "Content-Type: application/json" \
+  -d '{
+    "routing_key": "a228c6aa432b4901c0982a75d46fed92",
+    "event_action": "trigger",
+    "payload": {
+      "summary": "payment-service pods OOMKilled — memory usage at 98%",
+      "severity": "critical",
+      "source": "kubernetes-prod"
+    }
+  }'

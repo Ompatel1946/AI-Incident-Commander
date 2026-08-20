@@ -1,0 +1,10 @@
+stripe==5.4.0
+requests==2.31.0
+pyyaml==6.0
+python-dotenv
+slack-sdk
+groq
+certifi
+sentry-sdk
+fastapi
+uvicorn
