@@ -2,7 +2,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Coral](https://img.shields.io/badge/powered_by-Coral_SQL-orange)
 
-# DevOps War Room
+# AI-Incident-Commander
 
 <a href="https://www.youtube.com/watch?v=k_uoO7MIY84" target="_blank" rel="noopener noreferrer">
   <img src="https://img.youtube.com/vi/k_uoO7MIY84/hqdefault.jpg" alt="DevOps War Room demo video" width="560" />
