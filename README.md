@@ -4,6 +4,10 @@
 
 # DevOps War Room
 
+<a href="https://www.youtube.com/watch?v=k_uoO7MIY84" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.youtube.com/vi/k_uoO7MIY84/hqdefault.jpg" alt="DevOps War Room demo video" width="560" />
+</a>
+
 Autonomous incident commander for production incidents. The agent watches PagerDuty, correlates data across Coral sources, checks Stripe Statuspage, generates a specific root-cause report with Groq, posts it to Slack, and renders the investigation in a professional web dashboard with an incident timeline.
 
 ## What It Does
