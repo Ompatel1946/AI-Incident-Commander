@@ -40,7 +40,7 @@ Slack report + Dashboard timeline
 | Source | What the agent uses |
 | --- | --- |
 | PagerDuty | Triggered incidents and service urgency |
-| GitHub | Recent merged PRs for `dhupthumbadiya2005/demo-payment-service` |
+| GitHub | Recent merged PRs for `Ompatel1946/demo-payment-service` |
 | Sentry | `payment-service` issue titles, levels, counts, and first/last seen times |
 | Slack | `#incidents`, `#alerts`, and `#deploys` channel context |
 | Grafana | Payment service alert rule titles and firing signals |
@@ -62,7 +62,7 @@ SLACK_TOKEN=...
 SENTRY_DSN=...
 PAGERDUTY_PAYMENT_SERVICE_INTEGRATION_KEY=...
 GROQ_API_KEY=...
-GITHUB_USERNAME=dhupthumbadiya2005
+GITHUB_USERNAME=Ompatel1946
 GITHUB_REPO=demo-payment-service
 SLACK_CHANNEL=incidents
 ```
@@ -145,7 +145,3 @@ The dashboard includes:
 - Report: structured root cause, evidence, third-party status, actions, and confidence.
 - Sources: Coral connectivity and table availability.
 
-## Built For
-
-Pirates of the Coral-bean Hackathon  
-WeMakeDevs x Coral
